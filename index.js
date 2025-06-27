@@ -11,15 +11,26 @@ app.use(express.json());
 
 // Payment endpoint
 app.post("/pay", async (req, res) => {
-  const { phone, amount, name } = req.body;
-  console.log("💸 Payment received:", { phone, amount, name });
+  try {
+    const { phone, amount, name } = req.body;
 
-  const smsResult = await sendReceiptSMS(phone, amount, name, "GNG Mediatek");
+    if (!phone || !amount || !name) {
+      return res.status(400).json({ message: "Missing parameters" });
+    }
 
-  res.status(200).json({
-    message: "Payment processed and SMS sent",
-    sms: smsResult,
-  });
+    console.log("💸 Payment received:", req.body);
+
+    const result = await sendReceiptSMS(phone, amount, name, "GTK-PAY");
+
+    if (!result) {
+      return res.status(500).json({ message: "SMS failed" });
+    }
+
+    return res.status(201).json({ message: "Payment processed successfully" });
+  } catch (err) {
+    console.error("💥 Error processing payment:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 // Africa's Talking inbound SMS callback
