@@ -5,8 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "start": "node index.js",
-    "tunnel": "ngrok http 8080 --region=eu --subdomain=gtk-server",
+    "tunnel": "ngrok http 8080 --region=eu --subdomain=jenga-receipt-server",
     "start-dev": "concurrently \"npm run dev\" \"npm run tunnel\""
   },
   "keywords": [],
@@ -16,11 +15,12 @@
   "dependencies": {
     "africastalking": "^0.7.3",
     "axios": "^1.9.0",
+    "basic-auth": "^2.0.1",
     "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "ngrok": "^5.0.0-beta.2"
+    "ngrok": "^5.0.0-beta.2",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
