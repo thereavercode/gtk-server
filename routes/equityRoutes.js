@@ -3,7 +3,7 @@ const router = express.Router();
 
 const validationController = require("../controllers/validationController");
 const webhookController = require("../controllers/webhookController");
-const authMiddleware = require("../middleware/basicAuth");
+const authMiddleware = require("../middleware/basicAuthMiddleware");
 
 // POST /api/equity/validate - protected by Basic Auth
 router.post("/validate", authMiddleware, validationController.validateCustomer);

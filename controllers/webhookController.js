@@ -13,7 +13,7 @@ exports.handleTransaction = (req, res) => {
 
   // Emit real-time update to all connected dashboard clients
   const io = req.app.get("io");
-  io.emit("transactionUpdate", {
+  io.emit("transaction", {
     transactionId,
     amount,
     phone,

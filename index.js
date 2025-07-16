@@ -1,23 +1,25 @@
-// backend/index.js
+// gtk-server/index.js
 require("dotenv").config();
 const http = require("http");
 const app = require("./app");
 const { setupSocket } = require("./sockets");
+const { Server } = require("socket.io");
 
 const PORT = process.env.PORT || 3000;
-
 const server = http.createServer(app);
 
-// Socket.IO
-const { Server } = require("socket.io");
+// ✅ WebSocket setup with open CORS (can be secured further)
 const io = new Server(server, {
-  cors: { origin: "*" },
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
 
 // Make io globally available
 app.set("io", io);
 
-// Init Socket.IO listeners
+// Initialize socket listeners
 setupSocket(io);
 
 // Start server
@@ -26,4 +28,4 @@ server.listen(PORT, () => {
 });
 
 module.exports = server;
-// Export the server for testing purposes
+// This file initializes the server, sets up WebSocket connections, and starts listening on the specified port.

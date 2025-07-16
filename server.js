@@ -30,8 +30,8 @@ setInterval(() => {
   io.emit("transaction", dummyTransaction);
 }, 5000);
 
-server.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+server.listen(8080, () => {
+  console.log("Server running on http://localhost:8080");
 });
 // Handle WebSocket connections
 io.on("connection", (socket) => {

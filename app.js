@@ -1,49 +1,60 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 const equityRoutes = require("./routes/equityRoutes");
 const { handlePayment } = require("./controllers/payment");
 const { handleInboundSMS } = require("./services/sms");
+const basicAuthMiddleware = require("./middleware/basicAuthMiddleware"); // ✅ new import
 
 const app = express();
 
 const distPath = path.resolve(__dirname, "dist");
+console.log("✅ Resolved dist path:", distPath);
 
-// Middlewares
+// Security headers
+app.use(helmet());
 app.use(cors());
+
+// Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Rate limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+// Static frontend (unprotected)
 app.use(express.static(distPath));
 
-// API routes
+// ✅ Protected API routes
+app.use("/api", basicAuthMiddleware);
 app.use("/api/equity", equityRoutes);
-app.post("/pay", handlePayment);
-app.post("/sms/callback", handleInboundSMS);
+app.post("/pay", basicAuthMiddleware, handlePayment);
+app.post("/sms/callback", basicAuthMiddleware, handleInboundSMS);
 
-// SPA fallback route
+// SPA fallback
 app.get(/^\/(?!api|static|assets).*/, (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
-// Log registered routes AFTER all above routing setup
-function logRoutes() {
-  if (!app._router || !app._router.stack) {
-    console.warn("⚠️ Router stack not initialized yet.");
-    return;
-  }
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ status: "error", message: "Route not found" });
+});
 
-  app._router.stack
-    .filter((layer) => layer.route)
-    .forEach((layer) => {
-      const methods = Object.keys(layer.route.methods)
-        .map((m) => m.toUpperCase())
-        .join(", ");
-      console.log(`🛣️  [${methods}] Route registered: ${layer.route.path}`);
-    });
-}
-
-logRoutes();
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ status: "error", message: "Internal Server Error" });
+});
 
 module.exports = app;
+// This file sets up the Express server with security, body parsing, rate limiting, and routing.
