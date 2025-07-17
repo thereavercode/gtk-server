@@ -1,3 +1,4 @@
+//basicAuthMiddleware.js
 const basicAuth = require("basic-auth");
 
 const USERNAME = process.env.VALIDATION_USER;

@@ -1,30 +1,14 @@
 // controllers/webhookController.js
-exports.handleTransaction = (req, res) => {
-  const { transactionId, amount, phone, timestamp, status } = req.body;
+const { storePayments } = require("../services/payments");
 
-  if (!transactionId || !amount || !phone || !timestamp) {
-    return res.status(400).json({
-      status: "fail",
-      message: "Missing required fields",
-    });
+exports.handleWebhook = async (req, res) => {
+  try {
+    const result = await storePayments(req.body);
+    res.status(200).send("Webhook processed");
+  } catch (err) {
+    console.error("Webhook error:", err);
+    res.status(err.status || 500).send(err.message || "Server error");
   }
-
-  // Log/store transaction as needed...
-
-  // Emit real-time update to all connected dashboard clients
-  const io = req.app.get("io");
-  io.emit("transaction", {
-    transactionId,
-    amount,
-    phone,
-    timestamp,
-    status,
-  });
-
-  res.status(200).json({
-    status: "success",
-    message: "Transaction logged",
-  });
 };
-// This function handles incoming webhook requests from the payment provider.
-// It checks for required fields in the request body, logs or processes the transaction.
+// This file handles incoming webhook requests, calling the service to store payment information.
+// It catches errors and sends appropriate responses back to the client.

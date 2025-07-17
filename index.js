@@ -5,7 +5,7 @@ const app = require("./app");
 const { setupSocket } = require("./sockets");
 const { Server } = require("socket.io");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 const server = http.createServer(app);
 
 // ✅ WebSocket setup with open CORS (can be secured further)

@@ -1,4 +1,4 @@
-// sms.js
+// controllers/sms.js
 require("dotenv").config();
 
 const africastalking = require("africastalking")({
@@ -15,14 +15,14 @@ const formatPhone = (phone) => {
   return phone;
 };
 
-const sendReceiptSMS = async (phone, amount, name, company) => {
-  const message = `Hello ${name}, we've received your payment of KES ${amount}. Thank you for choosing ${company}.`;
+const sendReceiptSMS = async (phone, amountMessage, name, company) => {
+  const message = `Hello ${name}, we've received your ${amountMessage}. Thank you for choosing ${company}.`;
 
   try {
     const result = await sms.send({
       to: [formatPhone(phone)],
       from: "GTKPAY",
-      message: message,
+      message,
     });
 
     console.log("✅ SMS sent:", result);

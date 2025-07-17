@@ -1,33 +1,40 @@
-exports.validateCustomer = (req, res) => {
+//validationController.js
+const db = require("../src/db");
+
+exports.validateCustomer = async (req, res) => {
   const { billNumber, amount } = req.body;
 
-  // Validate required billNumber field
   if (!billNumber) {
-    return res.status(400).json({
-      description: "Missing required field: billNumber",
-    });
+    return res
+      .status(400)
+      .json({ responseCode: "400", responseMessage: "billNumber is required" });
   }
 
-  // Simulate database/ERP lookup for billNumber
-  const mockDatabase = {
-    123456: { customerName: "Jane Josh", amount: "10" },
-    654321: { customerName: "Paul Njoroge", amount: "0" },
-  };
+  try {
+    const result = await db.query(
+      "SELECT * FROM billers WHERE bill_number = $1",
+      [billNumber]
+    );
 
-  const record = mockDatabase[billNumber];
+    if (result.rows.length === 0) {
+      return res.status(422).json({
+        responseCode: "422",
+        responseMessage: "Invalid bill reference",
+      });
+    }
 
-  if (record) {
-    return res.status(200).json({
-      customerName: record.customerName,
-      billNumber,
-      amount: record.amount || "0", // Default to 0 if not available
+    const customer = result.rows[0];
+
+    res.status(200).json({
+      customerName: customer.customer_name,
+      billNumber: customer.bill_number,
+      amount: customer.amount.toString(),
       description: "Success",
     });
-  } else {
-    return res.status(404).json({
-      description: "Validation failed",
-    });
+  } catch (err) {
+    console.error("Validation Error:", err);
+    res
+      .status(500)
+      .json({ responseCode: "500", responseMessage: "Server error" });
   }
 };
-// This controller validates customer information based on a bill number.
-// It checks if the bill number exists in a mock database and returns customer details if found.
