@@ -1,13 +1,13 @@
 // gtk-server/server.js
 const express = require("express");
+const app = require("./app"); // <-- This runs app.js
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
 require("dotenv").config();
 
-const app = express();
+//const app = express();
 const server = http.createServer(app);
-
 // Express Middleware
 app.use(cors());
 app.use(express.json());
@@ -20,7 +20,7 @@ app.use("/api", routes);
 const io = new Server(server, {
   cors: {
     origin: "https://gtk-frontend.vercel.app", // set this to frontend URL in production
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
 
