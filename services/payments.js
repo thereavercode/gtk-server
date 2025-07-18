@@ -1,48 +1,63 @@
-// services/paymentService.js
-const db = require("../src/db");
-const { sendReceiptSMS } = require("../controllers/sms");
+import { supabaseAdmin } from "../supabase/client.js";
+import { sendReceiptSMS } from "../controllers/sms.js"; // use import and add .js
 
-exports.storePayments = async ({
+const db = supabaseAdmin;
+
+export async function storePayments({
   billNumber,
   amountPaid,
   bankReference,
   paidAt,
-}) => {
+}) {
   if (!billNumber || !amountPaid || !bankReference || !paidAt) {
     throw { status: 400, message: "Missing required fields" };
   }
 
-  const result = await db.query(
-    "SELECT * FROM billers WHERE bill_number = $1",
-    [billNumber]
-  );
-  if (result.rows.length === 0) {
+  const { data: billers, error: billerError } = await db
+    .from("billers")
+    .select("*")
+    .eq("bill_number", billNumber)
+    .limit(1);
+
+  if (billerError) throw billerError;
+
+  if (!billers || billers.length === 0) {
     throw { status: 422, message: "Invalid billNumber" };
   }
 
-  const customer = result.rows[0];
+  const customer = billers[0];
   const balance = parseFloat(customer.amount) - parseFloat(amountPaid);
 
-  await db.query(
-    `INSERT INTO payments (bill_number, amount_paid, bank_reference, paid_at, balance_after)
-     VALUES ($1, $2, $3, $4, $5)`,
-    [billNumber, amountPaid, bankReference, paidAt, balance]
-  );
+  const { error: insertError } = await db.from("payments").insert([
+    {
+      bill_number: billNumber,
+      amount_paid: amountPaid,
+      bank_reference: bankReference,
+      paid_at: paidAt,
+      balance_after: balance,
+    },
+  ]);
+
+  if (insertError) throw insertError;
 
   if (balance <= 0) {
-    await db.query("UPDATE billers SET status = $1 WHERE bill_number = $2", [
-      "paid",
-      billNumber,
-    ]);
+    const { error: updateError } = await db
+      .from("billers")
+      .update({ status: "paid" })
+      .eq("bill_number", billNumber);
+
+    if (updateError) throw updateError;
   }
 
   if (customer.phone) {
     const name = customer.customer_name || "Customer";
-    const company = "GTKPAY"; // Replace with your brand name if needed
+    const company = "GTKPAY"; // Your branding
     const message = `Payment of KES ${amountPaid} received. Remaining balance: KES ${balance}`;
 
     await sendReceiptSMS(customer.phone, message, name, company);
   }
 
   return { billNumber, amountPaid, balance };
-};
+}
+// This function stores payment details in the database and sends a receipt SMS to the customer.
+// It checks if the bill number is valid, updates the biller's status if fully paid,

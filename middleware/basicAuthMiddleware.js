@@ -1,5 +1,4 @@
-//basicAuthMiddleware.js
-const basicAuth = require("basic-auth");
+import basicAuth from "basic-auth";
 
 const USERNAME = process.env.VALIDATION_USER;
 const PASSWORD = process.env.VALIDATION_PASS;
@@ -18,6 +17,6 @@ const basicAuthMiddleware = (req, res, next) => {
   next(); // ✅ passed
 };
 
-module.exports = basicAuthMiddleware;
-// This middleware checks for Basic Auth credentials in the request headers.
-// If credentials are missing or incorrect, it responds with a 401 Unauthorized status.
+export default basicAuthMiddleware;
+// This middleware checks for basic authentication credentials.
+// It uses environment variables for the username and password.

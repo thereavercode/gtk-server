@@ -1,12 +1,14 @@
-// controllers/sms.js
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
-const africastalking = require("africastalking")({
+import africastalking from "africastalking";
+
+const africastalkingClient = africastalking({
   apiKey: process.env.AFRICASTALKING_APIKEY,
   username: process.env.AFRICASTALKING_USERNAME || "sandbox",
 });
 
-const sms = africastalking.SMS;
+const sms = africastalkingClient.SMS;
 
 const formatPhone = (phone) => {
   if (phone.startsWith("+")) return phone;
@@ -15,7 +17,7 @@ const formatPhone = (phone) => {
   return phone;
 };
 
-const sendReceiptSMS = async (phone, amountMessage, name, company) => {
+export const sendReceiptSMS = async (phone, amountMessage, name, company) => {
   const message = `Hello ${name}, we've received your ${amountMessage}. Thank you for choosing ${company}.`;
 
   try {
@@ -32,5 +34,5 @@ const sendReceiptSMS = async (phone, amountMessage, name, company) => {
     return null;
   }
 };
-
-module.exports = { sendReceiptSMS };
+// This module handles sending SMS notifications using Africa's Talking API.
+// It formats phone numbers and constructs a message based on the payment details.

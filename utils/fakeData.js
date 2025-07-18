@@ -1,5 +1,4 @@
-// utils/fakeData.js
-exports.generateFakePayment = () => {
+export const generateFakePayment = () => {
   const randomInt = (min, max) =>
     Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -13,5 +12,4 @@ exports.generateFakePayment = () => {
     paidAt: new Date().toISOString(),
   };
 };
-// This function generates fake payment data for testing purposes.
-// It randomly selects a bill number from a predefined list and generates random amounts and references.
+// This function generates a fake payment object with random values for testing purposes.

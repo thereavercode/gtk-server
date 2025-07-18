@@ -1,19 +1,16 @@
-// app.js
-const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const { ipKeyGenerator } = require("express-rate-limit");
-const rateLimit = require("express-rate-limit");
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import { ipKeyGenerator } from "express-rate-limit";
+import rateLimit from "express-rate-limit";
 
-const paymentRoutes = require("./routes/paymentRoutes");
-const equityRoutes = require("./routes/equityRoutes");
-const { handlePayment } = require("./controllers/paymentController");
-const { handleInboundSMS } = require("./services/sms");
-const basicAuthMiddleware = require("./middleware/basicAuthMiddleware");
+import paymentRoutes from "./routes/paymentRoutes.js";
+import equityRoutes from "./routes/equityRoutes.js";
+import { handlePayment } from "./controllers/paymentController.js";
+import { handleInboundSMS } from "./services/sms.js";
+import basicAuthMiddleware from "./middleware/basicAuthMiddleware.js";
 
 const app = express();
-//const distPath = path.resolve(__dirname, "dist");
-//console.log("✅ Resolved dist path:", distPath);
 
 // Security Middleware
 app.use(helmet());
@@ -22,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Rate Limiting
-app.set("trust proxy", 1); // Trust 1st proxy (e.g., ngrok/render)
+app.set("trust proxy", 1);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -36,8 +33,11 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// Serve Static Frontend
-//app.use(express.static(distPath));
+// Serve Static Frontend (uncomment and adjust if needed)
+// import path from "path";
+// const __dirname = path.dirname(new URL(import.meta.url).pathname);
+// const distPath = path.resolve(__dirname, "dist");
+// app.use(express.static(distPath));
 
 // Public Routes (no auth)
 app.use("/", paymentRoutes);
@@ -48,7 +48,7 @@ app.use("/api/equity", equityRoutes);
 app.post("/pay", handlePayment);
 app.post("/sms/callback", handleInboundSMS);
 
-// SPA Fallback (for React Router, etc.)
+// SPA Fallback (for React Router, etc., uncomment and adjust if used)
 // app.get(/^\/(?!api|static|assets).*/, (req, res) => {
 //   res.sendFile(path.join(distPath, "index.html"));
 // });
@@ -70,4 +70,5 @@ app.use((err, req, res, next) => {
   });
 });
 
-module.exports = app;
+export default app;
+// This file sets up the Express application with security, rate limiting, and routes.

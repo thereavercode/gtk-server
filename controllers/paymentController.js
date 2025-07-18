@@ -1,25 +1,23 @@
-// controllers/paymentController.js
-const { storePayments } = require("../services/payments");
-const { generateFakePayment } = require("../utils/fakeData");
+import { storePayments } from "../services/payments.js";
+import { generateFakePayment } from "../utils/fakeData.js";
 
-exports.handleWebhook = async (req, res) => {
+const emitTransaction = (io, result) => {
+  if (!io) return;
+  io.emit("transaction", {
+    transactionId: result.bankReference,
+    amount: result.amountPaid,
+    billNumber: result.billNumber,
+    timestamp: new Date().toISOString(),
+    status: "success",
+  });
+};
+
+export const handleWebhook = async (req, res) => {
   try {
-    // Decide to use fake or real data based on query param
     const data = req.query.dummy === "true" ? generateFakePayment() : req.body;
-
     const result = await storePayments(data);
 
-    // Emit transaction event
-    const io = req.app.get("io");
-    if (io) {
-      io.emit("transaction", {
-        transactionId: result.bankReference,
-        amount: result.amountPaid,
-        billNumber: result.billNumber,
-        timestamp: new Date().toISOString(),
-        status: "success",
-      });
-    }
+    emitTransaction(req.app.get("io"), result);
 
     res.status(200).send("Webhook processed");
   } catch (err) {
@@ -28,23 +26,12 @@ exports.handleWebhook = async (req, res) => {
   }
 };
 
-exports.handlePayment = async (req, res) => {
+export const handlePayment = async (req, res) => {
   try {
     const data = req.query.dummy === "true" ? generateFakePayment() : req.body;
-
     const result = await storePayments(data);
 
-    // Emit transaction event
-    const io = req.app.get("io");
-    if (io) {
-      io.emit("transaction", {
-        transactionId: result.bankReference,
-        amount: result.amountPaid,
-        billNumber: result.billNumber,
-        timestamp: new Date().toISOString(),
-        status: "success",
-      });
-    }
+    emitTransaction(req.app.get("io"), result);
 
     res.status(200).json({ success: true, result });
   } catch (err) {
@@ -54,5 +41,3 @@ exports.handlePayment = async (req, res) => {
       .json({ success: false, message: err.message });
   }
 };
-// This file handles incoming webhook requests and payment processing.
-// It can use either real or fake data based on a query parameter.

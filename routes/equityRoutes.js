@@ -1,17 +1,17 @@
-//equityRoutes.js
-const express = require("express");
+import express from "express";
+
+import { validateCustomer } from "../controllers/validationController.js";
+import { handleWebhook } from "../controllers/paymentController.js";
+import authMiddleware from "../middleware/basicAuthMiddleware.js";
+
 const router = express.Router();
 
-const validationController = require("../controllers/validationController");
-const paymentController = require("../controllers/paymentController");
-const authMiddleware = require("../middleware/basicAuthMiddleware");
-
 // POST /api/equity/validate - protected by Basic Auth
-router.post("/validate", authMiddleware, validationController.validateCustomer);
+router.post("/validate", authMiddleware, validateCustomer);
 
 // POST /api/equity/webhook - protected by Basic Auth
-router.post("/webhook", authMiddleware, paymentController.handleWebhook);
+router.post("/webhook", authMiddleware, handleWebhook);
 
-module.exports = router;
-// This file defines the routes for the Equity API.
-// It includes two endpoints:   validate and webhook
+export default router;
+// This file defines the equity routes, specifically for customer validation and webhook handling.
+// It uses basic authentication middleware to protect the endpoints.

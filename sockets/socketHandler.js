@@ -1,5 +1,5 @@
-//socketHandler.js
-module.exports = (io) => {
+// socketHandler.js
+const socketHandler = (io) => {
   io.on("connection", (socket) => {
     console.log("🔌 Client connected:", socket.id);
 
@@ -24,5 +24,7 @@ module.exports = (io) => {
     }, 5000);
   }
 };
-// This file handles WebSocket connections and emits dummy transactions if configured.
-// It listens for client connections and disconnections, and can emit real-time updates.
+
+export default socketHandler;
+// This module handles WebSocket connections and emits dummy transactions if configured.
+// It listens for client connections and disconnections, and can emit dummy data for testing purposes.

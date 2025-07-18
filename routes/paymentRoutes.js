@@ -1,9 +1,10 @@
-//paymentRoutes.js
-const express = require("express");
-const router = express.Router();
-const { handlePayment } = require("../controllers/paymentController");
-const authMiddleware = require("../middleware/basicAuthMiddleware"); // optional
+// paymentRoutes.js
+import express from "express";
+import { handlePayment } from "../controllers/paymentController.js";
+import authMiddleware from "../middleware/basicAuthMiddleware.js"; // if exported as default
 
-router.post("/payments", authMiddleware, handlePayment); // works even without auth
-module.exports = router;
-// This file defines the payment routes, specifically for storing payment information.
+const router = express.Router();
+
+router.post("/payments", authMiddleware, handlePayment);
+
+export default router;

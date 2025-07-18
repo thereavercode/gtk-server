@@ -1,39 +1,43 @@
-// gtk-server/server.js
-const express = require("express");
-const app = require("./app"); // <-- This runs app.js
-const http = require("http");
-const cors = require("cors");
-const { Server } = require("socket.io");
-require("dotenv").config();
+import express from "express";
+import app from "./app.js"; // add .js extension for ESM
+import http from "http";
+import cors from "cors";
+import { Server } from "socket.io";
+import dotenv from "dotenv";
+import routes from "./routes/index.js"; // or just './routes.js' if single file
+import socketHandler from "./sockets/socketHandler.js";
 
-//const app = express();
+dotenv.config();
+
 const server = http.createServer(app);
+
 // Express Middleware
 app.use(cors());
 app.use(express.json());
 
 // REST API Routes
-const routes = require("./routes");
 app.use("/api", routes);
 
 // WebSocket Setup
 const io = new Server(server, {
   cors: {
-    origin: "https://gtk-frontend.vercel.app", // set this to frontend URL in production
+    origin: "https://gtk-frontend.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
 
 // Attach io to app locals (for use in controllers)
 app.locals.io = io;
+
 // Handle WebSocket connections
-require("./sockets/socketHandler")(io); // move logic into a handler file
+socketHandler(io);
 
 // Start Server
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
   console.log(`🚀 Server running at ${PORT}`);
 });
+
 // Handle graceful shutdown
 process.on("SIGINT", () => {
   console.log("🔌 Shutting down server...");

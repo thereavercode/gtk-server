@@ -1,6 +1,6 @@
 // backend/controllers/sms.js
 
-exports.handleInboundSMS = (req, res) => {
+export const handleInboundSMS = (req, res) => {
   const { from, text, to, id, date } = req.body;
   if (!from || !text || !to || !id || !date) {
     console.warn("Incomplete SMS callback:", req.body);
