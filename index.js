@@ -26,7 +26,6 @@ const io = new Server(server, {
 
 // Attach io to app locals (for use in controllers)
 app.locals.io = io;
-setSocketInstance(io);
 // Handle WebSocket connections
 require("./sockets/socketHandler")(io); // move logic into a handler file
 
