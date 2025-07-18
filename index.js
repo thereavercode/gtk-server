@@ -1,31 +1,45 @@
-// gtk-server/index.js
-require("dotenv").config();
+// gtk-server/server.js
+const express = require("express");
 const http = require("http");
-const app = require("./app");
-const { setupSocket } = require("./sockets");
+const cors = require("cors");
 const { Server } = require("socket.io");
+require("dotenv").config();
 
-const PORT = process.env.PORT || 8080;
+const app = express();
 const server = http.createServer(app);
 
-// ✅ WebSocket setup with open CORS (can be secured further)
+// Express Middleware
+app.use(cors());
+app.use(express.json());
+
+// REST API Routes
+const routes = require("./routes");
+app.use("/api", routes);
+
+// WebSocket Setup
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://gtk-frontend.vercel.app", // set this to frontend URL in production
     methods: ["GET", "POST"],
   },
 });
 
-// Make io globally available
-app.set("io", io);
+// Attach io to app locals (for use in controllers)
+app.locals.io = io;
+setSocketInstance(io);
+// Handle WebSocket connections
+require("./sockets/socketHandler")(io); // move logic into a handler file
 
-// Initialize socket listeners
-setupSocket(io);
-
-// Start server
+// Start Server
+const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at ${PORT}`);
 });
-
-module.exports = server;
-// This file initializes the server, sets up WebSocket connections, and starts listening on the specified port.
+// Handle graceful shutdown
+process.on("SIGINT", () => {
+  console.log("🔌 Shutting down server...");
+  server.close(() => {
+    console.log("✅ Server closed");
+    process.exit(0);
+  });
+});
