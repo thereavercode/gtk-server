@@ -2,6 +2,9 @@ import { storePayments } from "../services/payments.js";
 import { generateFakePayment } from "../utils/fakeData.js";
 import dotenv from "dotenv";
 dotenv.config();
+
+const USE_DUMMY_DATA = process.env.USE_DUMMY_DATA === "true";
+
 const emitTransaction = (io, result) => {
   if (!io) return;
   io.emit("transaction", {
