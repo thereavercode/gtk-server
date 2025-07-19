@@ -14,7 +14,10 @@ const emitTransaction = (io, result) => {
 
 export const handleWebhook = async (req, res) => {
   try {
-    const data = req.query.dummy === "true" ? generateFakePayment() : req.body;
+    const data =
+      USE_DUMMY_DATA && req.query.dummy === "true"
+        ? generateFakePayment()
+        : req.body;
     const result = await storePayments(data);
 
     emitTransaction(req.app.get("io"), result);
@@ -28,7 +31,10 @@ export const handleWebhook = async (req, res) => {
 
 export const handlePayment = async (req, res) => {
   try {
-    const data = req.query.dummy === "true" ? generateFakePayment() : req.body;
+    const data =
+      USE_DUMMY_DATA && req.query.dummy === "true"
+        ? generateFakePayment()
+        : req.body;
     const result = await storePayments(data);
 
     emitTransaction(req.app.get("io"), result);
