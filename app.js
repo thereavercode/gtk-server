@@ -45,7 +45,7 @@ app.use("/", paymentRoutes);
 // Protected API Routes
 app.use("/api", basicAuthMiddleware); // middleware protects all /api/* endpoints
 app.use("/api/equity", equityRoutes);
-app.post("/pay", handlePayment);
+app.post("/payments", handlePayment);
 app.post("/sms/callback", handleInboundSMS);
 
 // SPA Fallback (for React Router, etc., uncomment and adjust if used)
