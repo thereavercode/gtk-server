@@ -14,7 +14,15 @@ const app = express();
 
 // Security Middleware
 app.use(helmet());
-app.use(cors());
+const allowedOrigins = ["https://gtk-frontend.vercel.app"];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
