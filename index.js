@@ -23,6 +23,7 @@ const io = new Server(server, {
   cors: {
     origin: "https://gtk-frontend.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // if you need to allow cookies/auth headers
   },
 });
 
